@@ -17,6 +17,8 @@ on:
       - Pre-production
       - DEV
 
+    workflow_dispatch:  
+
 jobs:
   
   build-and-test:
@@ -46,7 +48,7 @@ jobs:
       - name: Setup Sonarcloud
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}  
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   
   DeployDev:
