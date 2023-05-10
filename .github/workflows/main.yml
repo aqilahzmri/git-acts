@@ -52,7 +52,7 @@ jobs:
   DeployDev:
     name: Deploy to DEV Environment
     if: github.event_name == 'pull_request'
-    needs: build-and-test
+    needs: sonarcloud
     runs-on: ubuntu-latest
     environment:
       name: DEV
@@ -65,7 +65,7 @@ jobs:
   DeploySIT:
     name: Deploy to SIT Environment
     if: github.event.ref == 'refs/heads/DEV'
-    needs: build-and-test
+    needs: sonarcloud
     runs-on: ubuntu-latest
     environment:
       name: develop
