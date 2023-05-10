@@ -17,8 +17,6 @@ on:
       - Pre-production
       - DEV
 
-    workflow_dispatch:
-
 jobs:
   
   build-and-test:
@@ -59,8 +57,8 @@ jobs:
       - name: Setup SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          organization: "your-organization-name"
-          project: "your-project-name"
+          organization-key: "aqilahmsrh"
+          project-key: "aqilahmsrh_github-acts-7"
           token: ${{ secrets.SONAR_TOKEN }}
 
       - name: SonarCloud Scan
