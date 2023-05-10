@@ -21,60 +21,51 @@ on:
 
 jobs:
   
-  sonarqube:
-    name: SonarQube Scan
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code 
-        uses: actions/checkout@v3
-      
-      - name: setup node 
-        uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 16
-      - name: install dependencies 
-        run: npm install 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v3
-        env:
-          SONAR_URL: ${{ secrets.SONARQUBE_URL }}
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-    
-  build:
-    runs-on: ubuntu-latest 
-
-    steps:
-      - name: Checkout code 
-        uses: actions/checkout@v3
-      
-      - name: setup node 
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: install dependencies 
-        run: npm install 
-     
-
-  test: 
-    runs-on: ubuntu-latest 
-    steps:
-      - name: Checkout code 
-        uses: actions/checkout@v3
-      
-      - name: setup node 
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: install dependencies 
+          node-version: '16'
+      - name: Install dependencies
         run: npm install
-
       - name: Run test 
         run: npm test
-
       - name: Test prompt 
         run: echo "test has been executed"
 
+
+        - name: Setup SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          organization: "your-organization-name"
+          project: "your-project-name"
+          token: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+  
+  sonarqube:
+    name: SonarQube Scan with SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          organization: "your-organization-name"
+          project: "your-project-name"
+          token: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   DeployDev:
     name: Deploy to DEV Environment
