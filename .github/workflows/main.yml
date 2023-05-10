@@ -16,6 +16,8 @@ on:
       - staging
       - Pre-production
       - DEV
+      
+  workflow_dispatch:
 
 jobs:
   
