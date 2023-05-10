@@ -34,21 +34,7 @@ jobs:
         run: npm test
       - name: Test prompt 
         run: echo "test has been executed"
-
-
-      - name: Setup SonarCloud
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          organization: "your-organization-name"
-          project: "your-project-name"
-          token: ${{ secrets.SONAR_TOKEN }}
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
       
-  
   sonarqube:
     name: SonarQube Scan with SonarCloud
     runs-on: ubuntu-latest
