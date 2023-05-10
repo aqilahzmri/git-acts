@@ -38,7 +38,7 @@ jobs:
         run: echo "test has been executed"
 
 
-        - name: Setup SonarCloud
+      - name: Setup SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
         with:
           organization: "your-organization-name"
@@ -48,12 +48,13 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
       
   
   sonarqube:
     name: SonarQube Scan with SonarCloud
     runs-on: ubuntu-latest
+    needs: build-and-test
     steps:
       - name: Setup SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
@@ -70,7 +71,7 @@ jobs:
   DeployDev:
     name: Deploy to DEV Environment
     if: github.event_name == 'pull_request'
-    needs: [test]
+    needs: build-and-test
     runs-on: ubuntu-latest
     environment:
       name: DEV
@@ -83,7 +84,7 @@ jobs:
   DeploySIT:
     name: Deploy to SIT Environment
     if: github.event.ref == 'refs/heads/DEV'
-    needs: [test]
+    needs: build-and-test
     runs-on: ubuntu-latest
     environment:
       name: develop
