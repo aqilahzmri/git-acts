@@ -6,6 +6,10 @@
   "scripts": {
     "test": "jest src/app.test.js",
     "start": "node src"
+    "build": "rimraf ./build && npm run mkdir:build",
+    "build:ci": "npm run build",
+    "mkdir:build": "mkdir build && cp -R buildspec.yaml package.json yarn.lock function-update.yaml src reports build/",
+    "zip:build": "cd build && zip -r ../build.zip .",
   },
   "repository": {
     "type": "git",
