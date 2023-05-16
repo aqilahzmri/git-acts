@@ -25,8 +25,8 @@ jobs:
       - name: Copy Build to S3
         if: ${{ success() }}
         run: |
-          npm install
-          npm run build
+          yarn install
+          yarn run build:ci
           aws s3 cp build s3://regov-artifacts-dev/artifacts/build --recursive
         # ${{ secrets.AWS_S3_Artifacts }}
 
