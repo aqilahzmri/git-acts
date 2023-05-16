@@ -8,17 +8,6 @@ on:
       - staging
       - Pre-production
       - DEV
-
-  pull_request: 
-    branches: 
-      - main
-      - develop
-      - staging
-      - Pre-production
-      - DEV
-      
-  workflow_dispatch:
-  
 jobs:
   Build_and_Upload:
     permissions:
