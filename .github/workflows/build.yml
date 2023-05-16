@@ -32,7 +32,6 @@ jobs:
           zip -r $PACKAGE_NAME .
       
       - name: 'Publish Artifact'
-        id: publish_artifact
         uses: actions/upload-artifact@v2
         with:
           name: my-artifact
