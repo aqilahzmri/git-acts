@@ -32,10 +32,10 @@ jobs:
         uses: jakejarvis/s3-sync-action@v0.3.1
         env:
          SOURCE_DIR: './artifacts'
-         AWS_S3_BUCKET_REGION: ${{ secrets.AWS_S3_BUCKET_REGION }}
+#          AWS_S3_BUCKET_REGION: ${{ secrets.AWS_S3_BUCKET_REGION }}
          AWS_S3_BUCKET_NAME: 'bucket-test-777'
-         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_BUCKET_USER_AWS_ACCESS_KEY_ID }}
-         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_BUCKET_USER_AWS_SECRET_ACCESS_KEY }}
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_BUCKET_USER_AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_BUCKET_USER_AWS_SECRET_ACCESS_KEY }}
 #       - name: 'Create Artifact'
 #         id: create_artifact
 #         run: |
