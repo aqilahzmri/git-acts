@@ -15,34 +15,37 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: 'Generate Tag Version'
-        id: generate_tag_version
-        run: |
-          TAG=$(date +%Y%m%d)-$(date +%H%M%S)
-          echo "tag=$TAG" >> $GITHUB_ENV
-          echo "Tag Version: $TAG" >> $GITHUB_STEP_SUMMARY
-    
-      - name: 'Create Artifact'
-        id: create_artifact
-        run: |
-          PACKAGE_NAME="${{ steps.generate_tag_version.outputs.tag }}.zip"
-          echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
-          zip -r $PACKAGE_NAME .
-      
-      - name: 'Publish Artifact'
-        uses: actions/upload-artifact@v2
-        with:
-          name: my-artifact
-          path: ${{ steps.create_artifact.outputs.package_name }}
-
+      - uses: actions/checkout@v2
       - name: 'Configure AWS Credentials'
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AWS_S3_BUCKET_USER_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_S3_BUCKET_USER_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_S3_BUCKET_REGION }}
-
-      - name: 'Upload to S3 Bucket'
-        run: aws s3 cp "${{ github.workspace }}/${{ steps.create_artifact.outputs.package_name }}" "s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ steps.create_package.outputs.package_name }}"
+      - name: Make artifact directory
+        run: mkdir -p ./artifacts/${{ github.repository }}
+      - name: Create Zip File
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -r ./artifacts/${{ github.repository }}/${{ github.sha }}.zip ./src
+      - name: Push Zip to S3
+        uses: jakejarvis/s3-sync-action@v0.3.1
+        env:
+         SOURCE_DIR: './artifacts'
+         AWS_S3_BUCKET_REGION: ${{ secrets.AWS_S3_BUCKET_REGION }}
+         AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_BUCKET_USER_AWS_ACCESS_KEY_ID }}
+         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_BUCKET_USER_AWS_SECRET_ACCESS_KEY }}
+#       - name: 'Create Artifact'
+#         id: create_artifact
+#         run: |
+#           PACKAGE_NAME="${{ steps.generate_tag_version.outputs.tag }}.zip"
+#           echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
+#           zip -r $PACKAGE_NAME .
+#       - name: 'Publish Artifact'
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: my-artifact
+#           path: ${{ steps.create_artifact.outputs.package_name }}
+#       - name: 'Upload to S3 Bucket'
+#         run: aws s3 cp "${{ github.workspace }}/${{ steps.create_artifact.outputs.package_name }}" "s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ steps.create_package.outputs.package_name }}"
