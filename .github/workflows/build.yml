@@ -1,42 +1,84 @@
-name: 'Build and upload to S3 Bucket'
+name: 'Build, Upload, and Deploy'
 
-on: 
+on:
   push:
-    branches: 
+    branches:
       - main
-      - develop
-      - staging
       - DEV
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Repo Tag Name (Ex.: yyyymmdd-hhmmss)'
+        type: string
+        required: true
 
 jobs:
-  Build_and_Upload:
+  Build_Upload_Deploy:
     permissions:
       actions: write
       contents: write
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Zip
-        run: zip -r ../function.zip .
-#       - name: Push Zip to S3
-#         uses: jakejarvis/s3-sync-action@v0.3.1
-#         env:
-#          SOURCE_DIR: '../function.zip'
-#          AWS_S3_BUCKET_REGION: ${{ secrets.AWS_S3_BUCKET_REGION }}
-#          AWS_S3_BUCKET_NAME: 'bucket-test-777'
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_BUCKET_USER_AWS_ACCESS_KEY_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_BUCKET_USER_AWS_SECRET_ACCESS_KEY }}
-#       - name: 'Create Artifact'
-#         id: create_artifact
-#         run: |
-#           PACKAGE_NAME="${{ steps.generate_tag_version.outputs.tag }}.zip"
-#           echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
-#           zip -r $PACKAGE_NAME .
-#       - name: 'Publish Artifact'
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: my-artifact
-#           path: ${{ steps.create_artifact.outputs.package_name }}
-#       - name: 'Upload to S3 Bucket'
-#         run: aws s3 cp "${{ github.workspace }}/${{ steps.create_artifact.outputs.package_name }}" "s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ steps.create_package.outputs.package_name }}"
+      - uses: actions/checkout@v3
+
+      - name: 'Generate Tag Version'
+        id: generate_tag_version
+        run: |
+          TAG=$(date +%Y%m%d)-$(date +%H%M%S)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Tag Version: $TAG" >> $GITHUB_STEP_SUMMARY
+
+      - name: 'Create Zip File'
+        id: create_package
+        run: |
+          PACKAGE_NAME="${{ steps.generate_tag_version.outputs.tag }}.zip"
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          zip -r $PACKAGE_NAME .
+
+      - name: 'Configure AWS S3 Credentials'
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_BUCKET_USER_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_BUCKET_USER_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_S3_BUCKET_REGION }}
+
+      - name: 'Upload to S3 Bucket'
+        run: aws s3 cp ${{ steps.create_package.outputs.package_name }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
+
+      - name: 'Check Git Tag'
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const refResponse = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'tags/${{ inputs.version }}'
+            });
+
+      - name: 'Configure AWS Lambda Credentials'
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_LAMBDA_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_LAMBDA_USER_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_LAMBDA_REGION }}
+
+      - name: 'Check S3 Bucket'
+        run: |
+          aws s3api wait object-exists \
+            --bucket ${{ secrets.AWS_S3_BUCKET_NAME }} \
+            --key ${{ steps.generate_tag_version.outputs.tag }}.zip \
+            --cli-read-timeout 60 \
+            --cli-connect-timeout 60
+
+      - name: 'Update Source Code'
+        run: |
+          echo "Deploy Version: ${{ steps.generate_tag_version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "Update Lambda Function with ${{ steps.generate_tag_version.outputs.tag }}.zip file" >> $GITHUB_STEP_SUMMARY
+          aws lambda update-function-code \
+            --function-name=${{ secrets.AWS_LAMBDA_FUNCTION_NAME }} \
+            --s3-bucket=${{ secrets.AWS_S3_BUCKET_NAME }} \
+            --s3-key=${{ steps.generate_tag_version.outputs.tag }}.zip \
+            --cli-read-timeout 60 \
+            --cli-connect-timeout 60
