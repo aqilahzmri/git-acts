@@ -20,12 +20,12 @@ jobs:
 #       - name: Install Dependencies
 #         run: npm install
       
-#       - name: AWS Test Configuration
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ secrets.AWS_REGION }}
+      - name: AWS Test Configuration
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Build Zip File
         run: |
@@ -40,12 +40,7 @@ jobs:
           echo "::set-output name=build::$ZIP_NAME"
 
       - name: Upload Zip File to S3
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          command: aws s3 cp ${{ steps.build.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
+        run: aws s3 cp ${{ steps.build.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
       
       - name: 'Create Artifacts'
         id: 'create_artifacts'
