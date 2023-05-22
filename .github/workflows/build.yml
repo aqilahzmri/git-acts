@@ -28,6 +28,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Build Zip File
+        id: build_zip
         run: |
           # Set a unique identifier for the zip file
           ZIP_NAME=$(date +%Y%m%d%H%M%S).zip
@@ -44,17 +45,17 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: 'latest-build'
-          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+          path: ${{ github.workspace }}/${{ steps.build_zip.outputs.build }}
 
       - name: Upload Zip File to S3
-        run: aws s3 cp ${{ steps.build.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
+        run: aws s3 cp ${{ steps.build_zip.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
       
 #       - name: 'Create Artifacts'
 #         id: 'create_artifacts'
 #         uses: actions/upload-artifact@v2
 #         with:
 #           name: 'latest-build'
-#           path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+#           path: ${{ github.workspace }}/${{ steps.build_zip.outputs.build }}
 
 #       - name: Deploy to Lambda Function
 #         uses: aws-actions/aws-cli@v2
