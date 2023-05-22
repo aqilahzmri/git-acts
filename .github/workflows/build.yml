@@ -31,7 +31,7 @@ jobs:
           zip -r $ZIP_NAME ./
 
           # Export the zip file name as an output variable
-          echo "::set-output name=zip-name::$ZIP_NAME"
+          echo "::set-output name=build::$ZIP_NAME"
 
       - name: Upload Zip File to S3
         uses: aws-actions/aws-cli@v2
@@ -39,7 +39,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          command: s3 cp ${{ steps.build.outputs.zip-name }} s3://bucket-test-777/
+          command: s3 cp ${{ steps.build.outputs.build }} s3://bucket-test-777/
+      
+      - name: 'Create Artifacts'
+        id: 'create_artifacts'
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'latest-build'
+          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
 
 #       - name: Deploy to Lambda Function
 #         uses: aws-actions/aws-cli@v2
@@ -50,4 +57,4 @@ jobs:
 #           command: lambda update-function-code
 #           function-name: ${{ secrets.AWS_LAMBDA_NAME }}
 #           s3-bucket: ${{ secrets.AWS_S3_BUCKET_NAME }}
-#           s3-key: ${{ steps.build.outputs.latest }}
+#           s3-key: ${{ steps.build.outputs.build }}
