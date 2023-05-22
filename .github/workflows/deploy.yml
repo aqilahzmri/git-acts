@@ -25,13 +25,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
           
-      - name: Download Zip File from S3
-        run: |
-          aws s3 cp s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ github.event.workflow_run.outputs.build }} ./build.zip
+#       - name: Download Zip File from S3
+#         run: |
+#           aws s3 cp s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ github.event.workflow_run.outputs.build }} ./build.zip
 
       - name: Deploy to Lambda Function
         run: |
-          aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --zip-file fileb://build.zip
+          aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --s3-bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --s3-key build.zip
+          
+          
+# aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --zip-file fileb://build.zip
             
 #         with:
 #           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
