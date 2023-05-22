@@ -26,14 +26,12 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           
       - name: Download Zip File from S3
-        run: aws s3 cp s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ github.event.workflow_run.outputs.build }} ./latest-build.zip
+        run: |
+          aws s3 cp s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ github.event.workflow_run.outputs.build }} ./latest-build.zip
 
       - name: Deploy to Lambda Function
         run: |
-          aws lambda update-function-code \
-            --function-name=${{ secrets.AWS_LAMBDA_NAME }} \
-            --s3-bucket=${{ secrets.AWS_S3_BUCKET_NAME }} \
-            --s3-key=./latest-build.zip 
+          aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --zip-file fileb://latest-build.zip
             
 #         with:
 #           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
