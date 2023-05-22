@@ -24,7 +24,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          command: s3 cp s3://bucket-test-777/${{ github.event.workflow_run.outputs.build }} ./latest-build.zip
+          command: aws s3 cp s3://bucket-test-777/${{ github.event.workflow_run.outputs.build }} ./latest-build.zip
 
       - name: Deploy to Lambda Function
         uses: aws-actions/configure-aws-credentials@v1
@@ -32,6 +32,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          command: lambda update-function-code
+          command: aws lambda update-function-code
           function-name: ${{ secrets.AWS_LAMBDA_NAME }}
           zip-file: ./latest-build.zip
