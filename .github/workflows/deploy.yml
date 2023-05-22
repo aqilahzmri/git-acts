@@ -1,0 +1,37 @@
+name: Deploy to Lambda
+
+on:
+  workflow_run:
+    workflows: ["Build and Zip"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      approve-deployment:
+        description: 'Approve deployment'
+        required: true
+        default: 'false'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.approve-deployment == 'true'
+
+    steps:
+      - name: Download Zip File from S3
+        uses: aws-actions/aws-cli@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          command: s3 cp s3://bucket-test-777/${{ github.event.workflow_run.outputs.zip-name }} ./latest.zip
+
+      - name: Deploy to Lambda Function
+        uses: aws-actions/aws-cli@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          command: lambda update-function-code
+          function-name: ${{ secrets.AWS_LAMBDA_NAME }}
+          zip-file: ./latest.zip
