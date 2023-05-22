@@ -1,4 +1,4 @@
-name: Build, Zip, and Deploy
+name: Build
 
 on:
   push:
