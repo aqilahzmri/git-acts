@@ -2,7 +2,7 @@ name: Deploy to Lambda
 
 on:
   workflow_run:
-    workflows: ["Build and Zip"]
+    workflows: ["Build"]
     types:
       - completed
   workflow_dispatch:
