@@ -25,7 +25,7 @@ on:
         default: 'false'
 
 jobs:
-  Deploy_to_Lambda_Function:
+  Deploy_Lambda_to_Dev:
     runs-on: ubuntu-latest
     if: github.event.inputs.approve-deployment == 'true'
 
@@ -41,23 +41,23 @@ jobs:
           run: |
               aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --s3-bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --s3-key build.zip
         
-  DeployDev:
-    name: Deploy to DEV Environment
-    if: github.event_name == 'pull_request' && success()
-    needs: Deploy_to_Lambda_Function
-    runs-on: ubuntu-latest
-    environment:
-      name: DEV
-      url: "http://dev.Reach.com"
-    steps:
-      - name: Deploy
-        run: echo "Deploying to DEV Environment"
-        #This is where the deployment phase should be coded
+#   DeployDev:
+#     name: Deploy to DEV Environment
+#     if: github.event_name == 'pull_request' && success()
+#     needs: Deploy_to_Lambda_Function
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: DEV
+#       url: "http://dev.Reach.com"
+#     steps:
+#       - name: Deploy
+#         run: echo "Deploying to DEV Environment"
+#         #This is where the deployment phase should be coded
 
   DeploySIT:
     name: Deploy to SIT Environment
     if: github.event.ref == 'refs/heads/main'
-    needs: Deploy_to_Lambda_Function
+    needs: Deploy_Lambda_to_Dev
     runs-on: ubuntu-latest
     environment:
       name: develop
