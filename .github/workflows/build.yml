@@ -12,14 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v2
-#         with:
-#           node-version: '14'
-
-#       - name: Install Dependencies
-#         run: npm install
-      
       - name: AWS Test Configuration
         uses: aws-actions/configure-aws-credentials@v1
         with:
