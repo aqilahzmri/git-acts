@@ -41,21 +41,16 @@ jobs:
 
       - name: Upload Zip File to S3
         run: aws s3 cp ${{ steps.build_zip.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
-      
-#       - name: 'Create Artifacts'
-#         id: 'create_artifacts'
-#         uses: actions/upload-artifact@v2
+  
+#   sonarqube:
+#     name: Sonarqube scan
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
 #         with:
-#           name: 'latest-build'
-#           path: ${{ github.workspace }}/${{ steps.build_zip.outputs.build }}
-
-#       - name: Deploy to Lambda Function
-#         uses: aws-actions/aws-cli@v2
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ secrets.AWS_REGION }}
-#           command: lambda update-function-code
-#           function-name: ${{ secrets.AWS_LAMBDA_NAME }}
-#           s3-bucket: ${{ secrets.AWS_S3_BUCKET_NAME }}
-#           s3-key: ${{ steps.build.outputs.build }}
+#           fetch-depth: 0  
+#       - uses: sonarsource/sonarqube-scan-action@master
+#         env:
+#           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+#           SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
+          
