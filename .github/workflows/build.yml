@@ -1,9 +1,21 @@
 name: Build
 
 on:
-  push:
-    branches:
+   push:
+    branches: 
       - main
+      - develop
+      - staging
+      - Pre-production
+      - feature/etb-ntb-hybrid
+
+   pull_request: 
+    branches: 
+      - main
+      - develop
+      - staging
+      - Pre-production
+      - feature/etb-ntb-hybrid
 
 jobs:
   build-and-deploy:
