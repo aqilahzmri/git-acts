@@ -1,0 +1,70 @@
+name: Build
+
+on:
+   push:
+    branches: 
+      - main
+      - develop
+      - staging
+      - Pre-production
+      - feature/etb-ntb-hybrid
+      - DEV
+
+   pull_request: 
+    branches: 
+      - main
+      - develop
+      - staging
+      - Pre-production
+      - feature/etb-ntb-hybrid
+      - DEV
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: AWS Test Configuration
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Build Zip File
+        id: build_zip
+        run: |
+          # Set a unique identifier for the zip file
+          ZIP_NAME=build.zip
+
+          # Create the zip file with the unique name
+          # zip -r $ZIP_NAME ./src
+          zip -r $ZIP_NAME ./
+
+          # Export the zip file name as an output variable
+          echo "::set-output name=build::$ZIP_NAME"
+          
+      - name: 'Create Artifacts'
+        id: 'create_artifacts'
+        uses: actions/upload-artifact@v2
+        with:
+          name: latest-build
+          path: ${{ github.workspace }}/${{ steps.build_zip.outputs.build }}
+
+      - name: Upload Zip File to S3
+        run: aws s3 cp ${{ steps.build_zip.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
+  
+#   sonarqube:
+#     name: Sonarqube scan
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0  
+#       - uses: sonarsource/sonarqube-scan-action@master
+#         env:
+#           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+#           SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
+          
