@@ -43,7 +43,7 @@ jobs:
         
   DeployDev:
     name: Deploy to DEV Environment
-    if: always()
+    if: github.event.inputs.approve-deployment == 'true'
     needs: Deploy_to_Lambda_Function
     runs-on: ubuntu-latest
     environment:
