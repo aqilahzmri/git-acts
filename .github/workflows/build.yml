@@ -8,6 +8,7 @@ on:
       - staging
       - Pre-production
       - feature/etb-ntb-hybrid
+      - DEV
 
    pull_request: 
     branches: 
@@ -16,6 +17,7 @@ on:
       - staging
       - Pre-production
       - feature/etb-ntb-hybrid
+      - DEV
 
 jobs:
   build-and-deploy:
@@ -54,15 +56,15 @@ jobs:
       - name: Upload Zip File to S3
         run: aws s3 cp ${{ steps.build_zip.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
   
-#   sonarqube:
-#     name: Sonarqube scan
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#         with:
-#           fetch-depth: 0  
-#       - uses: sonarsource/sonarqube-scan-action@master
-#         env:
-#           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-#           SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
+  sonarqube:
+    name: Sonarqube scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+          SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
           
