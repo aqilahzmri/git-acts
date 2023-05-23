@@ -15,24 +15,37 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.event.inputs.approve-deployment == 'true'
+#     if: github.event.inputs.approve-deployment == 'true'
 
     steps:
-      - name: 'Configure AWS Credentials'
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Delay before approval
+        run: sleep 3600
+
+      - name: Continue workflow after delay
+        if: ${{ github.event.inputs.approve-deployment == 'true' }}
+        run: |
+          # Add your deployment steps here
+          echo "Deployment approved and executed."
+      
+          - name: 'Configure AWS Credentials'
+            uses: aws-actions/configure-aws-credentials@v1-node16
+            with:
+              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+              aws-region: ${{ secrets.AWS_REGION }}
+              
+          - name: Deploy to Lambda Function
+            run: |
+              aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --s3-bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --s3-key build.zip
           
 #       - name: Download Zip File from S3
 #         run: |
 #           aws s3 cp s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ github.event.workflow_run.outputs.build }} ./build.zip
 
-      - name: Deploy to Lambda Function
-        run: |
-          aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --s3-bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --s3-key build.zip
-          
+#           - name: Deploy to Lambda Function
+#             run: |
+#               aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --s3-bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --s3-key build.zip
+
           
 # aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --zip-file fileb://build.zip
             
