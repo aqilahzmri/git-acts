@@ -5,11 +5,13 @@ on:
     branches: 
      - main
      - DEV
+     - aqilahmsrh-patch-1
 
    pull_request: 
     branches: 
      - main
      - DEV
+     - aqilahmsrh-patch-1
 
    workflow_dispatch:
 
