@@ -49,62 +49,62 @@ jobs:
           path: ${{ github.workspace }}/${{ steps.build_zip.outputs.build }}
 
       - name: Upload Zip File to S3
-        run: aws s3 cp ${{ steps.build_zip.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
+        run: aws s3 cp ${{ steps.build_zip.outputs.build }} s3://bucket-test-777/Prod/
       
-  DeployLambdatoDev:
-    if: github.event_name == 'pull_request' && success()
-    needs: [Build]
-    runs-on: ubuntu-latest
-    environment:
-      name: LambdaDeployment
-    steps:
-        - name: 'Configure AWS Credentials'
-          uses: aws-actions/configure-aws-credentials@v2
-          with:
-              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-              aws-region: ${{ secrets.AWS_REGION }}
+#   DeployLambdatoDev:
+#     if: github.event_name == 'pull_request' && success()
+#     needs: [Build]
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: LambdaDeployment
+#     steps:
+#         - name: 'Configure AWS Credentials'
+#           uses: aws-actions/configure-aws-credentials@v2
+#           with:
+#               aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#               aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#               aws-region: ${{ secrets.AWS_REGION }}
               
-        - name: Deploy to Lambda Function
-          run: |
-              LATEST_ZIP=$(aws s3 ls s3://${{ secrets.AWS_S3_BUCKET_NAME }} --recursive --human-readable --summarize | grep 'build-' | awk '{ print $NF }' | sort -r | head -n 1)
-              aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --s3-bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --s3-key $LATEST_ZIP
+#         - name: Deploy to Lambda Function
+#           run: |
+#               LATEST_ZIP=$(aws s3 ls s3://${{ secrets.AWS_S3_BUCKET_NAME }} --recursive --human-readable --summarize | grep 'build-' | awk '{ print $NF }' | sort -r | head -n 1)
+#               aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_NAME }} --s3-bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --s3-key $LATEST_ZIP
   
-  DeploySIT:
-    name: Deploy to SIT Environment
-    if: github.event_name == 'pull_request' && success()
-    needs: [DeployLambdatoDev]
-    runs-on: ubuntu-latest
-    environment:
-      name: develop
-      url: "http://SIT.Reach.com"
-    steps:
-      - name: Deploy
-        run: echo "Deploying to SIT Environment"
-        #This is where the deployment phase should be coded
+#   DeploySIT:
+#     name: Deploy to SIT Environment
+#     if: github.event_name == 'pull_request' && success()
+#     needs: [DeployLambdatoDev]
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: develop
+#       url: "http://SIT.Reach.com"
+#     steps:
+#       - name: Deploy
+#         run: echo "Deploying to SIT Environment"
+#         #This is where the deployment phase should be coded
   
-  DeployStaging:
-    name: Deploy to Staging Environment
-    if: github.event_name == 'pull_request' && success()
-    needs: [DeploySIT]
-    runs-on: ubuntu-latest
-    environment:
-      name: staging
-      url: "http://Staging.Reach.com"
-    steps:
-      - name: Deploy
-        run: echo "Deploying to Staging Environment"
-        #This is where the deployment phase should be coded
+#   DeployStaging:
+#     name: Deploy to Staging Environment
+#     if: github.event_name == 'pull_request' && success()
+#     needs: [DeploySIT]
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: staging
+#       url: "http://Staging.Reach.com"
+#     steps:
+#       - name: Deploy
+#         run: echo "Deploying to Staging Environment"
+#         #This is where the deployment phase should be coded
 
-  DeployPre-prodution:
-    name: Deploy to Pre-prod Environment
-    if: github.event_name == 'pull_request' && success()
-    needs: [DeployStaging]
-    runs-on: ubuntu-latest
-    environment:
-      name: Pre-production
-      url: "http://Pre-prod.Reach.com"
-    steps:
-      - name: Deploy
-        run: echo "Deploying to Pre-prod Environment"
-        #This is where the deployment phase should be coded
+#   DeployPre-prodution:
+#     name: Deploy to Pre-prod Environment
+#     if: github.event_name == 'pull_request' && success()
+#     needs: [DeployStaging]
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: Pre-production
+#       url: "http://Pre-prod.Reach.com"
+#     steps:
+#       - name: Deploy
+#         run: echo "Deploying to Pre-prod Environment"
+#         #This is where the deployment phase should be coded
