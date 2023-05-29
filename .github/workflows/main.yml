@@ -41,7 +41,7 @@ jobs:
           # Export the zip file name as an output variable
           # echo "::set-output name=build::$ZIP_NAME"
           echo $(pwd) 
-          echo $(ZIP_DIR)
+          echo $ZIP_DIR
           echo $(ls -l) 
           echo "{build}={$ZIP_NAME}" >> $GITHUB_OUTPUT
           
@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: latest-build
-          path: ${{ github.workspace }}/${{ steps.build_zip.outputs.build }}
+          path: $ZIP_DIR
 
 #       - name: Upload Zip File to S3
 #         run: aws s3 cp ${{ github.workspace }}/${{ steps.build_zip.outputs.build }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
@@ -63,7 +63,7 @@ jobs:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_S3_BUCKET_NAME}}
-          source_dir: ${{ github.workspace }}/${{ steps.build_zip.outputs.build }}
+          source_dir: $ZIP_DIR
       
   DeployLambdatoDev:
     if: github.event_name == 'pull_request' && success()
