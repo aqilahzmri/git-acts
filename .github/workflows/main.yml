@@ -5,7 +5,7 @@ on:
     branches: 
      - main
      - DEV
-     - aqilahmsrh-patch-8
+     - aqilahmsrh-patch-10
 
    pull_request: 
     branches: 
