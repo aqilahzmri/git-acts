@@ -44,7 +44,7 @@ jobs:
           echo $(pwd) 
           echo $ZIP_DIR
           echo $(ls -l) 
-          echo "{build}={$ZIP_NAME}" >> $GITHUB_OUTPUT
+          # echo "{build}={$ZIP_NAME}" >> $GITHUB_OUTPUT
           
           
       - name: 'Create Artifacts'
