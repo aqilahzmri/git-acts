@@ -39,8 +39,8 @@ jobs:
 
           # Export the zip file name as an output variable
           # echo "::set-output name=build::$ZIP_NAME"
-          echo pwd 
-          echo ls -l 
+          echo ($pwd) 
+          echo ($ls -l) 
           echo "{build}={$ZIP_NAME}" >> $GITHUB_OUTPUT
           
           
