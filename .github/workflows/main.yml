@@ -41,7 +41,7 @@ jobs:
           echo "Zip Directory Path: $ZIP_DIR"
           echo $(pwd) 
           echo $ZIP_NAME
-          echo $(ls -l /home/runner/work/git-acts/git-acts/zip-file) 
+          echo $(ls -l ./) 
  
           
           
