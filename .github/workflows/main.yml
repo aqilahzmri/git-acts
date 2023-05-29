@@ -66,7 +66,7 @@ jobs:
 #           source_dir: ${{ github.workspace }}/${{ steps.build_zip.outputs.build }}
       
   DeploytoDev:
-    if: github.event.ref != 'refs/heads/release/DEV' && github.event_name == 'pull_request'
+    if: github.event.ref != 'refs/heads/DEV' && github.event_name == 'pull_request'
     needs: [Build]
     runs-on: ubuntu-latest
     environment:
@@ -86,7 +86,7 @@ jobs:
   
   DeploytoSIT:
     name: Deploy to SIT Environment
-    if: github.event.ref == 'refs/heads/release/SIT'
+    if: github.event.ref == 'refs/heads/SIT'
     needs: [Build]
     runs-on: ubuntu-latest
     environment:
@@ -99,7 +99,7 @@ jobs:
   
   DeploytoStaging:
     name: Deploy to Staging Environment
-    if: github.event.ref == 'refs/heads/release/staging'
+    if: github.event.ref == 'refs/heads/staging'
     needs: [Build]
     runs-on: ubuntu-latest
     environment:
@@ -112,7 +112,7 @@ jobs:
 
   DeploytoProd:
     name: Deploy to Pre-prod Environment
-    if: github.event.ref == 'refs/heads/release/Prod'
+    if: github.event.ref == 'refs/heads/prod'
     needs: [Build]
     runs-on: ubuntu-latest
     environment:
