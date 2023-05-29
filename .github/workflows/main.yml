@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "zip_name=build-$(date +"%Y-%m-%d-%H-%M-%S").zip" >> $GITHUB_ENV
           ZIP_NAME=${{ env.zip_name }}
-          zip -r $GITHUB_WORKSPACE/$ZIP_NAME ./
+          zip -r $GITHUB_WORKSPACE/$ZIP_NAME /home/runner/work/git-acts/git-acts/
           
           echo ${{ env.GITHUB_WORKSPACE }}/${{ env.zip_name }}
           
