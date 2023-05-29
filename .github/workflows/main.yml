@@ -5,6 +5,7 @@ on:
     branches: 
      - main
      - DEV
+     - aqilahmsrh-patch-8
 
    pull_request: 
     branches: 
