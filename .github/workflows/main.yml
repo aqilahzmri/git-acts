@@ -41,12 +41,12 @@ jobs:
           echo $(ls -l ./)
                     
           
-#       - name: 'Create Artifacts'
-#         id: 'create_artifacts'
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: latest-build
-#           path: ${{ env.ZIP_PATH }}
+      - name: 'Create Artifacts'
+        id: 'create_artifacts'
+        uses: actions/upload-artifact@v3
+        with:
+          name: latest-build
+          path: $ZIP_DIR
           
 #       - name: Check Path
 #         run: echo $ZIP_DIR
