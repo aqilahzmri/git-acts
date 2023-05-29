@@ -35,11 +35,16 @@ jobs:
 
           # Create the zip file with the unique name
           # zip -r $ZIP_NAME ./src
-          zip -r $ZIP_NAME ./
+          zip -r $ZIP_NAME /home/runner/work/git-acts/git-acts 
+          ZIP_DIR=/home/runner/work/git-acts/git-acts/$ZIP_NAME
 
           # Export the zip file name as an output variable
           # echo "::set-output name=build::$ZIP_NAME"
+          echo $(pwd) 
+          echo $(ZIP_DIR)
+          echo $(ls -l) 
           echo "{build}={$ZIP_NAME}" >> $GITHUB_OUTPUT
+          
           
       - name: 'Create Artifacts'
         id: 'create_artifacts'
