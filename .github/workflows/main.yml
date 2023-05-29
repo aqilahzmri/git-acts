@@ -36,10 +36,11 @@ jobs:
 
           # Create the zip file with the unique name
           # zip -r $ZIP_NAME ./src
-          zip -r $ZIP_NAME /home/runner/work/git-acts/git-acts/zip-file 
-          ZIP_DIR=/home/runner/work/git-acts/git-acts/zip-file
+          zip -r $ZIP_NAME /home/runner/work/git-acts/git-acts
+          ZIP_DIR=$(dirname "$ZIP_NAME")
+          echo "Zip Directory Path: $ZIP_DIR"
           echo $(pwd) 
-          echo $ZIP_DIR
+          echo $ZIP_NAME
           echo $(ls -l /home/runner/work/git-acts/git-acts/zip-file) 
  
           
