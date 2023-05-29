@@ -39,8 +39,10 @@ jobs:
           echo $ZIP_NAME
           echo $ZIP_DIR
           echo $(ls -l ./)
-                    
-          
+      
+      - name: 'check'
+        run: echo $ZIP_DIR
+     
       - name: 'Create Artifacts'
         id: 'create_artifacts'
         uses: actions/upload-artifact@v3
