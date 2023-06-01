@@ -42,7 +42,14 @@ jobs:
      
       - name: 'Download from S3 Bucket'
         run: aws s3 cp s3://bucket-test-777/build-2023-05-31-04-15-48.zip .
-
+        
+      - name: Store artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Archive of KenangaMobile app 
+          path: ./build-2023-05-31-04-15-48.zip
+          
+          
 # jobs:
 #   Build:
 #     runs-on: ubuntu-latest
