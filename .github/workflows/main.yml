@@ -46,7 +46,7 @@ jobs:
       - name: Store artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Archive of KenangaMobile app 
+          name: Artifact from s3
           path: ./build-2023-05-31-04-15-48.zip
           
           
