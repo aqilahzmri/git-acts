@@ -3,7 +3,7 @@ name: CICD
 on:
    push:
     branches: 
-     - aqilahmsrh-patch-11
+     - aqilahmsrh-patch-12
 
 jobs:
   Deploy:
@@ -20,14 +20,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           
-      - name: Install Serverless Framework
-        run: npm install -g serverless
+#       - name: Install Serverless Framework
+#         run: npm install -g serverless
         
       - name: AWS configuration
-        run: sls config credentials --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: npx serverless config credentials --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       
       - name: Serverless Deploy
-        run: sls deploy --stage dev --region ${{ secrets.AWS_REGION }}
+        run: npx serverless deploy --stage dev --region ${{ secrets.AWS_REGION }}
         
         
 #       - name: serverless deploy
