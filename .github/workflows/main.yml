@@ -21,7 +21,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           
       - name: Install Serverless Framework
-        run: npm install -g serverless@3.19.0 graphql-schema-utilities
+        run: |
+          npm install -g serverless@3.19.0 
+          npm install -g graphql-schema-utilities
         
       - name: AWS configuration
         run: sls config credentials --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
