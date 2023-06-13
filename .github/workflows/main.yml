@@ -3,51 +3,81 @@ name: CICD
 on:
    push:
     branches: 
-     - aqilahmsrh-patch-10
+     - aqilahmsrh-patch-11
 
 jobs:
-  Build:
+  Deploy:
+    name: deploy
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node: [18.x]
+        
     steps:
       - uses: actions/checkout@v3
-      
-      - name: AWS Test Configuration
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: 'Create Zip File'
-        id: 'create_package'
-        run: |
-          PACKAGE_NAME=build-$(date +"%Y-%m-%d-%H-%M-%S").zip
-          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
-          zip -r $PACKAGE_NAME .
+          node-version: ${{ matrix.node-version }}
           
-      - name: check
+      - name: Install Serverless Framework
         run: |
-          echo ${{ steps.create_package.outputs.package_name }}
-          
-      - name: 'Create Artifacts'
-        id: 'create_artifacts'
-        uses: actions/upload-artifact@v3
-        with:
-          name: latest-build
-          path: ${{ github.workspace }}/${{ steps.create_package.outputs.package_name }}
-      
-      - name: 'Upload to S3 Bucket'
-        run: aws s3 cp ${{ steps.create_package.outputs.package_name }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
-     
-      - name: 'Download from S3 Bucket'
-        run: aws s3 cp s3://bucket-test-777/build-2023-05-31-04-15-48.zip .
+          npm install -g serverless@3.19.0 
+          npm install -g graphql-schema-utilities
         
-      - name: Store artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: Artifact from s3
-          path: ./build-2023-05-31-04-15-48.zip
+      - name: AWS configuration
+        run: sls config credentials --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      
+      - name: Serverless Deploy
+        run: sls deploy --stage dev --region ${{ secrets.AWS_REGION }}
+        
+        
+#       - name: serverless deploy
+#         uses: serverless/github-action@v3.2
+#         with:
+#           args: deploy
+#         env:
+#         # SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+#         # or if using AWS credentials directly
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          
+#       - name: AWS Test Configuration
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_REGION }}
+
+#       - name: 'Create Zip File'
+#         id: 'create_package'
+#         run: |
+#           PACKAGE_NAME=build-$(date +"%Y-%m-%d-%H-%M-%S").zip
+#           echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+#           zip -r $PACKAGE_NAME .
+          
+#       - name: check
+#         run: |
+#           echo ${{ steps.create_package.outputs.package_name }}
+          
+#       - name: 'Create Artifacts'
+#         id: 'create_artifacts'
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: latest-build
+#           path: ${{ github.workspace }}/${{ steps.create_package.outputs.package_name }}
+      
+#       - name: 'Upload to S3 Bucket'
+#         run: aws s3 cp ${{ steps.create_package.outputs.package_name }} s3://${{ secrets.AWS_S3_BUCKET_NAME }}
+     
+#       - name: 'Download from S3 Bucket'
+#         run: aws s3 cp s3://bucket-test-777/build-2023-05-31-04-15-48.zip .
+        
+#       - name: Store artifact
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: Artifact from s3
+#           path: ./build-2023-05-31-04-15-48.zip
           
           
 # jobs:
