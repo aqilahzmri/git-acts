@@ -3,7 +3,7 @@ name: CICD
 on:
    push:
     branches: 
-     - aqilahmsrh-patch-11
+     - aqilahmsrh-patch-12
 
 jobs:
   Deploy:
