@@ -1,10 +1,187 @@
 service: basic-serverless-lambda
 
+frameworkVersion: '3'
+
 provider:
   name: aws
   runtime: nodejs18.x
-  stage: dev
+  stage: ${opt:stage,'local'}
   region: ap-southeast-1
+   # profile: fpam_dev
+  # profile: fpam_sit
+  # profile: fpam_uat
+  # profile: fpam_production
+  timeout: 900
+  versionFunctions: false
+  # only for prod
+  vpc:
+    securityGroupIds:
+      - ${self:provider.environment.VPC_SECURITY_GROUP}
+    subnetIds:
+      - ${self:provider.environment.VPC_SUBNET1}
+      - ${self:provider.environment.VPC_SUBNET2}
+  environment:
+    # dev
+    DATABASE_HOST: ${ssm:/FPAMAPI/${sls:stage}/DATABASE_HOST}
+    DATABASE_NAME: ${ssm:/FPAMAPI/${sls:stage}/DATABASE_NAME}
+    DATABASE_USER: ${ssm:/FPAMAPI/${sls:stage}/DATABASE_USER}
+    DATABASE_PASSWORD: ${ssm:/FPAMAPI/${sls:stage}/DATABASE_PASSWORD}
+    OTP_MAXIMUM_ATTEMPTS: ${ssm:/FPAMAPI/${sls:stage}/OTP_MAXIMUM_ATTEMPTS}
+    OTP_LOCK_TIME: ${ssm:/FPAMAPI/${sls:stage}/OTP_LOCK_TIME}
+    OTP_EXPIRE_TIME: ${ssm:/FPAMAPI/${sls:stage}/OTP_EXPIRE_TIME}
+    OTP_RESEND_TIME: ${ssm:/FPAMAPI/${sls:stage}/OTP_RESEND_TIME}
+    SMS_USERNAME: ${ssm:/FPAMAPI/${sls:stage}/SMS_USERNAME}
+    SMS_PASSWORD: ${ssm:/FPAMAPI/${sls:stage}/SMS_PASSWORD}
+    SMS_FROM: ${ssm:/FPAMAPI/${sls:stage}/SMS_FROM}
+    SMS_SERVICE_ID: ${ssm:/FPAMAPI/${sls:stage}/SMS_SERVICE_ID}
+    STATIC_OTP: ${ssm:/FPAMAPI/${sls:stage}/STATIC_OTP}
+    FE_URL: ${ssm:/FPAMAPI/${sls:stage}/FE_URL}
+    S3_BUCKET: ${ssm:/FPAMAPI/${sls:stage}/S3_BUCKET}
+    S3_FOLDER: ${ssm:/FPAMAPI/${sls:stage}/S3_FOLDER}
+    ZOOM_LINK: ${ssm:/FPAMAPI/${sls:stage}/ZOOM_LINK}
+    APPSYNC_X_API_KEY: ${ssm:/FPAMAPI/${sls:stage}/APPSYNC_X_API_KEY}
+    APPSYNC_ENDPOINT: ${ssm:/FPAMAPI/${sls:stage}/APPSYNC_ENDPOINT}
+    SOURCE_EMAIL: ${ssm:/FPAMAPI/${sls:stage}/SOURCE_EMAIL}
+    # dev
+    # ENV: dev
+    # sit
+    # ENV: sit
+    # uat
+    # ENV: uat
+    # uat
+    ENV: production
+
+    # # only for prod
+    VPC_SECURITY_GROUP: ${ssm:/FPAMAPI/${sls:stage}/VPC_SECURITY_GROUP}
+    VPC_SUBNET1: ${ssm:/FPAMAPI/${sls:stage}/VPC_SUBNET1}
+    VPC_SUBNET2: ${ssm:/FPAMAPI/${sls:stage}/VPC_SUBNET2}
+    
+    # local
+    # DATABASE_HOST: localhost
+    # DATABASE_NAME: fpam
+    # DATABASE_USER: root
+    # DATABASE_PASSWORD: Regov@1800
+    # ENV: local
+    # STATIC_OTP: true
+    # APPSYNC_X_API_KEY: da2-fakeApiId123456
+    # APPSYNC_ENDPOINT: http://192.168.1.4:3000/graphql
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'lambda:InvokeFunction'
+      Resource: '*'
+    - Effect: Allow
+      Action:
+        - 'ec2:DescribeNetworkInterfaces'
+        - 'ec2:CreateNetworkInterface'
+        - 'ec2:DeleteNetworkInterface'
+        - 'ec2:DescribeInstances'
+        - 'ec2:AttachNetworkInterface'
+        - 'sqs:SendMessage'
+        - 'ses:SendEmail'
+        - 'ses:SendRawEmail'
+        - 'ssm:Describe*'
+        - 'ssm:Get*'
+        - 'ssm:List*'
+      Resource:
+        - '*'
+
+plugins:
+  - serverless-appsync-plugin
+  - serverless-appsync-simulator
+  - serverless-offline
+  - serverless-webpack
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    includeLayers: true
+    automatic: true
+    number: 3
+  serverless-offline:
+    httpPort: 4000
+  # accountId: 468491936494 # dev
+  # accountId: 496584741799 # sit
+  # accountId: 631579059203 # uat is our production now
+  accountId: 295878590324 # production is our uat now
+  # dev
+  # layersConfig:
+  #   - arn:aws:lambda:ap-southeast-1:468491936494:layer:fpam-api-layer:4
+  # sit
+  # layersConfig:
+  #   - arn:aws:lambda:ap-southeast-1:496584741799:layer:fpam-api-layer:3
+  # uat
+  # layersConfig:
+  #   - arn:aws:lambda:ap-southeast-1:631579059203:layer:fpam-api-layer:1
+  # production
+  layersConfig:
+    - arn:aws:lambda:ap-southeast-1:295878590324:layer:fpam-api-layer:1
+  # webpack:
+  #   includeModules:
+  #     forceInclude:
+  #       - knex
+  appsync-simulator:
+    apiKey: da2-fakeApiId123456
+    location: '.webpack/service'
+    port: 3000
+    schema: schema.graphql
+  appSync:
+    name: ${self:service}-${sls:stage}
+    authenticationType: API_KEY
+
+    userPoolConfig:
+      awsRegion: # defaults to provider region
+      defaultAction: # required # ALLOW or DENY
+      userPoolId: # required # user pool ID
+      appIdClientRegex: # optional
+
+    schema:
+      - src/functions/index.graphql
+      - ${file(src/functions/auth/auth.yml):schema}
+      - ${file(src/functions/voting/voting.yml):schema}
+
+    mappingTemplates:
+      - ${file(src/functions/auth/auth.yml):mappingTemplates}
+      - ${file(src/functions/voting/voting.yml):mappingTemplates}
+
+    serviceRole: '${self:provider.region}-${sls:stage}-fpamapi'
+    dataSources:
+      - ${file(src/functions/auth/auth.yml):dataSources}
+      - ${file(src/functions/voting/voting.yml):dataSources}
+      - ${file(src/functions/reminder/reminderRest.yml):dataSources}
+
+package:
+  individually: true
+
+functions:
+  - ${file(src/functions/auth/auth.yml):functions}
+  - ${file(src/functions/voting/voting.yml):functions}
+  - ${file(src/functions/reminder/reminderRest.yml):functions}
+
+resources:
+  Resources:
+    fpamapi:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: '${self:provider.region}-${sls:stage}-fpamapi'
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Principal:
+                Service:
+                  - 'appsync.amazonaws.com'
+              Action:
+                - 'sts:AssumeRole'
+        Policies:
+          - PolicyName: '${self:provider.region}-${sls:stage}-fpamapi-policy'
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: 'Allow'
+                  Action:
+                    - 'lambda:InvokeFunction'
+                  Resource: '*'
 
 functions:
   testing:
