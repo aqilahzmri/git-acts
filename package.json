@@ -1,31 +1,60 @@
 {
-  "name": "github-actions-node",
+  "name": "fpam-api",
   "version": "1.0.0",
-  "description": "This is node js cicd pipeline",
   "main": "index.js",
   "scripts": {
-    "test": "jest src/app.test.js",
-    "start": "node src"
-    "build": "rimraf ./build && npm run mkdir:build",
-    "build:ci": "npm run build",
-    "mkdir:build": "mkdir build && cp -R buildspec.yaml package.json yarn.lock function-update.yaml src reports build/",
-    "zip:build": "cd build && zip -r ../build.zip .",
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://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@github.com/haqimRegov/github-actions-node.git"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.ts*",
+    "local": "node beforeOfflineStart && SLS_DEBUG=* NODE_DEBUG=appsync-* sls offline start --noTimeout --reloadHandler",
+    "local1": "node beforeOfflineStart && sls offline start --noTimeout --reloadHandler",
+    "deploy:dev": "node beforeOfflineStart && sls deploy --stage dev --region ap-southeast-1",
+    "deploy:sit": "node beforeOfflineStart && sls deploy --stage sit --region ap-southeast-1",
+    "deploy:prod": "node beforeOfflineStart && sls deploy --stage uat --region ap-southeast-1",
+    "deploy:uat": "node beforeOfflineStart && sls deploy --stage production --region ap-southeast-1",  
+    "deploy:devops": "node beforeOfflineStart && sls deploy --stage devops --region ap-southeast-1",  
+    "make:layer": "mkdir nodejs && cp ./package.json nodejs/package.json && touch fpam-api.zip && rm fpam-api.zip",
+    "layer:zip": "npm run make:layer && cd nodejs && npm install --omit=dev --ignore-scripts && cd ../ && zip -r fpam-api.zip nodejs; rm -r nodejs"
   },
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/haqimRegov/github-actions-node/issues"
-  },
-  "homepage": "https://github.com/haqimRegov/github-actions-node#readme",
+  "description": "",
   "dependencies": {
-    "express": "^4.18.2"
+    "csvtojson": "^2.0.10",
+    "http": "0.0.1-security",
+    "json-2-csv": "^4.0.0",
+    "knex": "^2.4.2",
+    "mysql": "^2.18.1",
+    "serverless": "^3.32.2",
+    "tsconfig-paths-webpack-plugin": "^3.5.1",
+    "tslib": "^2.0.1",
+    "uniqid": "^5.3.0",
+    "uuid": "^8.3.2",
+    "webpack": "^5.86.0"
   },
   "devDependencies": {
-    "jest": "^29.5.0",
-    "supertest": "^6.3.3"
+    "@types/node": "^14.18.48",
+    "@types/serverless": "3.12.7",
+    "@types/uniqid": "^5.3.0",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "cfn-resolver-lib": "1.1.7",
+    "copy-webpack-plugin": "^11.0.0",
+    "eslint": "^7.6.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "fork-ts-checker-webpack-plugin": "^3.0.1",
+    "jsonschema": "1.2.6",
+    "prettier": "2.1.1",
+    "serverless-appsync-plugin": "1.4.0",
+    "serverless-appsync-simulator": "0.20.0",
+    "serverless-offline": "12.0.3",
+    "serverless-prune-plugin": "2.0.1",
+    "serverless-webpack": "5.11.0",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7",
+    "velocityjs": "^2.0.0",
+    "webpack-node-externals": "^1.7.2"
   }
 }
